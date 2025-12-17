@@ -1,1 +1,52 @@
 flutter/ephemeral
+# ============================================
+# Firebase Configuration Files
+# ============================================
+
+# Android
+android/app/google-services.json
+android/app/google-services.ser
+
+# iOS
+ios/Runner/GoogleService-Info.plist
+ios/firebase_app_id_file.json
+
+# Web
+web/firebase-config.js
+web/firebase-messaging-sw.js
+
+# General Firebase
+firebase-debug.log
+firebase-debug.*.log
+.firebase/
+.firebaserc
+
+# ============================================
+# Platform-specific ignores
+# ============================================
+
+# Android
+*.apk
+*.aab
+*.keystore
+*.jks
+*.key
+*.p12
+*.der
+android/key.properties
+android/local.properties
+
+# iOS
+*.ipa
+*.mobileprovision
+ios/Podfile.lock
+ios/.generated/
+ios/Flutter/Flutter.podspec
+
+# Build directories
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+
