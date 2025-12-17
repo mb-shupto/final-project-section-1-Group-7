@@ -25,10 +25,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
   void _showAddEditDialog({Product? product}) {
     final isEditing = product != null;
     final nameController = TextEditingController(text: product?.name ?? '');
-    final quantityController =
-    TextEditingController(text: product?.quantity.toString() ?? '');
-    final imageUrlController =
-    TextEditingController(text: product?.imageUrl ?? '');
+    final quantityController = TextEditingController(
+      text: product?.quantity.toString() ?? '',
+    );
+    final imageUrlController = TextEditingController(
+      text: product?.imageUrl ?? '',
+    );
     String selectedCategory = product?.category ?? 'General';
 
     // Predefined categories to show in the modal
@@ -37,7 +39,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       'Stationery',
       'Beverages',
       'Snacks',
-      'Confectionery'
+      'Confectionery',
     ];
 
     final provider = Provider.of<InventoryProvider>(context, listen: false);
@@ -76,7 +78,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   children: [
                     Text(
                       isEditing ? 'Edit Product' : 'Add New Product',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     TextField(
@@ -133,7 +138,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             if (nameController.text.isEmpty ||
                                 quantityController.text.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Please fill required fields')),
+                                const SnackBar(
+                                  content: Text('Please fill required fields'),
+                                ),
                               );
                               return;
                             }
@@ -141,7 +148,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             final newProduct = Product(
                               id: isEditing ? product!.id : null,
                               name: nameController.text.trim(),
-                              quantity: int.tryParse(quantityController.text) ?? 0,
+                              quantity:
+                              int.tryParse(quantityController.text) ?? 0,
                               category: selectedCategory,
                               imageUrl: imageUrlController.text.isEmpty
                                   ? null
@@ -149,11 +157,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             );
 
                             if (isEditing) {
-                              await Provider.of<InventoryProvider>(context, listen: false)
-                                  .updateProduct(newProduct);
+                              await Provider.of<InventoryProvider>(
+                                context,
+                                listen: false,
+                              ).updateProduct(newProduct);
                             } else {
-                              await Provider.of<InventoryProvider>(context, listen: false)
-                                  .addProduct(newProduct);
+                              await Provider.of<InventoryProvider>(
+                                context,
+                                listen: false,
+                              ).addProduct(newProduct);
                             }
 
                             Navigator.pop(context);
@@ -178,9 +190,19 @@ class _ProductListScreenState extends State<ProductListScreen> {
     final inventoryProvider = Provider.of<InventoryProvider>(context);
     final products = inventoryProvider.products ?? [];
     final query = _searchController.text.trim().toLowerCase();
-    final filtered = query.isEmpty
-        ? products
-        : products.where((p) => p.name.toLowerCase().contains(query)).toList();
+    final selectedCategory = inventoryProvider.selectedCategory;
+
+    final filtered = products.where((p) {
+      final matchesSearch = query.isEmpty
+          ? true
+          : p.name.toLowerCase().contains(query);
+
+      final matchesCategory = (selectedCategory == 'All' || selectedCategory.isEmpty)
+          ? true
+          : (p.category == selectedCategory);
+
+      return matchesSearch && matchesCategory;
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -191,7 +213,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
             onPressed: () async {
-              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              final authProvider = Provider.of<AuthProvider>(
+                context,
+                listen: false,
+              );
               await authProvider.signOut();
             },
           ),
@@ -199,8 +224,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
       body: Column(
         children: [
+          // Replace the search + chips section with this:
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12.0,
+              vertical: 8.0,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -208,7 +237,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     controller: _searchController,
                     onChanged: (value) {
                       inventoryProvider.setSearchQuery(value);
-                      setState(() {}); // update suffixIcon and filtered results
                     },
                     decoration: InputDecoration(
                       hintText: 'Search products...',
@@ -220,7 +248,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         onPressed: () {
                           _searchController.clear();
                           inventoryProvider.setSearchQuery('');
-                          setState(() {});
                         },
                       )
                           : null,
@@ -229,21 +256,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 ),
                 const SizedBox(width: 12),
                 DropdownButton<String>(
-                  value: _sortBy,
-                  icon: const Icon(Icons.sort),
+                  value: inventoryProvider.selectedCategory,
+                  icon: const Icon(Icons.filter_list),
                   underline: Container(height: 2, color: Colors.blue),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _sortBy = newValue;
-                      });
-                      inventoryProvider.setSortBy(newValue);
+                  onChanged: (String? newCategory) {
+                    if (newCategory != null) {
+                      inventoryProvider.setCategoryFilter(newCategory);
                     }
                   },
-                  items: const [
-                    DropdownMenuItem(value: 'default', child: Text('Default')),
-                    DropdownMenuItem(value: 'category', child: Text('By Category')),
-                  ],
+                  items: inventoryProvider.categories.map((String category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -257,10 +283,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 final p = filtered[index];
                 return ListTile(
                   leading: (p.imageUrl != null && p.imageUrl!.isNotEmpty)
-                      ? Image.network(p.imageUrl!, width: 48, height: 48, fit: BoxFit.cover)
+                      ? Image.network(
+                    p.imageUrl!,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  )
                       : const Icon(Icons.inventory_2),
                   title: Text(p.name),
-                  subtitle: Text('Qty: ${p.quantity} \u2022 ${p.category ?? ''}'),
+                  subtitle: Text(
+                    'Qty: ${p.quantity} \u2022 ${p.category ?? ''}',
+                  ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -274,7 +307,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           final id = p.id;
                           if (id == null || id.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Cannot delete product: missing id')),
+                              const SnackBar(
+                                content: Text(
+                                  'Cannot delete product: missing id',
+                                ),
+                              ),
                             );
                             return;
                           }
