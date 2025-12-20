@@ -50,20 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyArghi0zVSaB7upidAGAc9rjfbd4KMhFUU',
-    appId: '1:748393946180:android:21b7322a519b9569287011',
-    messagingSenderId: '748393946180',
-    projectId: 'final-project-b4430',
-    storageBucket: 'final-project-b4430.firebasestorage.app',
+    apiKey: 'AIzaSyA8Y2VI0Nab-nw5_ySq-o6L-NkeQp7HZ4I',
+    appId: '1:844191700984:android:2d2350468a23fbcb0da80d',
+    messagingSenderId: '844191700984',
+    projectId: 'inventory-track-supto',
+    storageBucket: 'inventory-track-supto.firebasestorage.app',
   );
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAGLs54skOJ9qdmSJBlxuXCj1o48MIhnCA',
-    appId: '1:748393946180:web:931f873586b6cf49287011',
-    messagingSenderId: '748393946180',
-    projectId: 'final-project-b4430',
-    authDomain: 'final-project-b4430.firebaseapp.com',
-    storageBucket: 'final-project-b4430.firebasestorage.app',
+    apiKey: 'AIzaSyCy-npoMsdUjUI0FQXjNaL1z65Svmwx9DM',
+    appId: '1:844191700984:web:e710ecf67b2c4afd0da80d',
+    messagingSenderId: '844191700984',
+    projectId: 'inventory-track-supto',
+    authDomain: 'inventory-track-supto.firebaseapp.com',
+    storageBucket: 'inventory-track-supto.firebasestorage.app',
   );
 
 }
